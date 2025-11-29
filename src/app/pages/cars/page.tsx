@@ -1,5 +1,5 @@
-import AddCar from "../../components/Addcar";
-import { getCars } from "../../api/carsApi";
+import AddCar from "@/components/Addcar";
+import { getCars } from "@/api/carsApi";
 
 export default async function CarsPage() {
     const cars = await getCars();

@@ -1,6 +1,5 @@
-const API_URL = "http://localhost:5000/api/cars";
-const API_URL = "http://localhost:5000/api/cars";
-
+// src/api/carsApi.ts
+const API_URL = "https://server-0bof.onrender.com/api/cars";
 
 export interface Car {
   _id?: string;
@@ -17,8 +16,18 @@ export interface Car {
   downPayment?: number;
   monthlyPayment?: number;
   status: "available" | "sold" | "rented";
-  paidMonths?: number; // добавим для рассрочки
-  totalMonths?: number; // добавим для рассрочки
+  paidMonths?: number;
+  totalMonths?: number;
+  startDate?: string;
+  payments?: {
+    month: string;
+    due: boolean;
+    paid: boolean;
+    paidDate?: string;
+    amountUSD?: number;
+    amountUZS?: number;
+    rateAtPayment?: number;
+  }[];
 }
 
 export async function getCars(): Promise<Car[]> {
@@ -62,5 +71,19 @@ export async function sellCar(id: string, data: Partial<Car>) {
 export async function completePayment(id: string) {
   const res = await fetch(`${API_URL}/${id}/complete`, { method: "POST" });
   if (!res.ok) throw new Error("Ошибка при завершении рассрочки");
+  return res.json();
+}
+
+// --- НОВАЯ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ОПЛАТЫ ---
+export async function updateCarPayment(id: string, data: { month: string; amountUSD: number; rateAtPayment: number }) {
+  const res = await fetch(`${API_URL}/${id}/pay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err || "Ошибка при оплате");
+  }
   return res.json();
 }

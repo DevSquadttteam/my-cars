@@ -15,6 +15,9 @@ import Link from "next/link";
           <Link href="/add-car" className="hover:text-blue-400">
   Добавить машину
 </Link>
+<Link href="/monetization" className="ml-4 hover:text-blue-400">
+  Монетизация
+</Link>
 
         </main>
 

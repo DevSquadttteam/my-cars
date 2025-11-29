@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { addCar } from "../api/carsApi";
 
@@ -15,15 +14,13 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
     const [purchaseCurrency, setPurchaseCurrency] = useState("USD");
     const [boughtFrom, setBoughtFrom] = useState("");
 
-    const [priceSale, setPriceSale] = useState("");
-    const [saleCurrency, setSaleCurrency] = useState("USD");
+    // Все обязательные поля для типа Car
+    const [priceSale, setPriceSale] = useState(0);
     const [soldTo, setSoldTo] = useState("");
-
-    const [saleType, setSaleType] = useState("cash");
-    const [downPayment, setDownPayment] = useState("");
-    const [monthlyPayment, setMonthlyPayment] = useState("");
-
-    const [status, setStatus] = useState("available");
+    const [saleType, setSaleType] = useState<"cash" | "monthly" | "monthlyWithDownPayment">("cash");
+    const [downPayment, setDownPayment] = useState(0);
+    const [monthlyPayment, setMonthlyPayment] = useState(0);
+    const [status, setStatus] = useState<"available" | "sold" | "rented">("available");
 
     const validate = () => {
         if (!make.trim()) return "Укажи марку";
@@ -58,19 +55,14 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
                     make,
                     model,
                     year: Number(year),
-
                     pricePurchase: Number(pricePurchase),
                     purchaseCurrency,
                     boughtFrom,
-
-                    priceSale: Number(priceSale),
-                    saleCurrency,
+                    priceSale,
                     soldTo,
-
                     saleType,
-                    downPayment: Number(downPayment),
-                    monthlyPayment: Number(monthlyPayment),
-
+                    downPayment,
+                    monthlyPayment,
                     status
                 },
                 token
@@ -78,21 +70,18 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
 
             onCarAdded();
 
+            // Очистка формы
             setMake("");
             setModel("");
             setYear("");
             setPricePurchase("");
             setPurchaseCurrency("USD");
             setBoughtFrom("");
-
-            setPriceSale("");
-            setSaleCurrency("USD");
+            setPriceSale(0);
             setSoldTo("");
-
             setSaleType("cash");
-            setDownPayment("");
-            setMonthlyPayment("");
-
+            setDownPayment(0);
+            setMonthlyPayment(0);
             setStatus("available");
         } catch (err) {
             console.error(err);
@@ -134,7 +123,6 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
                     value={pricePurchase}
                     onChange={(e) => setPricePurchase(e.target.value)}
                 />
-
                 <select
                     className="p-2 rounded bg-slate-700"
                     value={purchaseCurrency}
@@ -158,36 +146,28 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
                     placeholder="Цена продажи"
                     type="number"
                     value={priceSale}
-                    onChange={(e) => setPriceSale(e.target.value)}
+                    onChange={(e) => setPriceSale(Number(e.target.value))}
                 />
-
-                <select
+                <input
                     className="p-2 rounded bg-slate-700"
-                    value={saleCurrency}
-                    onChange={(e) => setSaleCurrency(e.target.value)}
-                >
-                    <option value="USD">USD</option>
-                    <option value="UZS">UZS</option>
-                </select>
+                    placeholder="Кому продано"
+                    value={soldTo}
+                    onChange={(e) => setSoldTo(e.target.value)}
+                />
             </div>
-
-            <input
-                className="w-full p-2 rounded bg-slate-700"
-                placeholder="Кому продано"
-                value={soldTo}
-                onChange={(e) => setSoldTo(e.target.value)}
-            />
 
             <select
                 className="w-full p-2 rounded bg-slate-700"
                 value={saleType}
-                onChange={(e) => setSaleType(e.target.value)}
+                onChange={(e) =>
+                    setSaleType(
+                        e.target.value as "cash" | "monthly" | "monthlyWithDownPayment"
+                    )
+                }
             >
                 <option value="cash">Наличные</option>
                 <option value="monthly">Рассрочка</option>
-                <option value="monthlyWithDownPayment">
-                    Рассрочка с первым взносом
-                </option>
+                <option value="monthlyWithDownPayment">Рассрочка с первым взносом</option>
             </select>
 
             {saleType !== "cash" && (
@@ -197,15 +177,14 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
                         placeholder="Первоначальный взнос"
                         type="number"
                         value={downPayment}
-                        onChange={(e) => setDownPayment(e.target.value)}
+                        onChange={(e) => setDownPayment(Number(e.target.value))}
                     />
-
                     <input
                         className="p-2 rounded bg-slate-700"
                         placeholder="Месячный платёж"
                         type="number"
                         value={monthlyPayment}
-                        onChange={(e) => setMonthlyPayment(e.target.value)}
+                        onChange={(e) => setMonthlyPayment(Number(e.target.value))}
                     />
                 </div>
             )}
@@ -213,7 +192,9 @@ export default function AddCar({ onCarAdded }: AddCarProps) {
             <select
                 className="w-full p-2 rounded bg-slate-700"
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) =>
+                    setStatus(e.target.value as "available" | "sold" | "rented")
+                }
             >
                 <option value="available">Доступна</option>
                 <option value="sold">Продана</option>
